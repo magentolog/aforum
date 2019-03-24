@@ -26,5 +26,11 @@ class Api extends CI_Controller {
         $data = $this->users_model->getUsers();
         $this->ajax($data);
     }
+    
+    public function locations() {
+        $this->load->model('locations_model');
+        $data = $this->locations_model->getAll();
+        $this->ajax($data);        
+    }
 
 }
