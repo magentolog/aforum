@@ -1,0 +1,52 @@
+.floor-plan-container {
+    padding: 5px;
+  }
+
+  #bg-img {
+    opacity: 0.4;
+  }
+
+  #canvas {
+    border: 1px solid black;
+    opacity: 0.9;
+  }
+
+  .canvas-container {
+    float: left;
+    position: relative;
+  }
+
+  .absolute {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .tools-container {
+    float: left;
+    position: sticky;
+    top: 0;
+  }
+
+  .controlls {
+    margin: 0 20px;
+    max-width: 500px;
+  }
+
+  .controlls div {
+    margin: 10px 5px;
+  }
+
+  .footer {
+    clear: both;
+  }
+
+  #data {
+    width: 100%;
+    height: 200px;
+  }
+
+  #btn-mode {
+      
+}
+
