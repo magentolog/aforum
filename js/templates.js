@@ -5,7 +5,8 @@ const CLASS_ROOM_ID = 'RoomId';
 const CLASS_ROOM_NAME = 'RoomName';
 const INDENT_X = 30;
 const INDENT_Y = 30;
-const FLOOR_PLAN_BASE_NAME = "FloorPlan";
+
+const ABSEND_TABLE_BASE_NAME = "AbsendTable";
 const COLOR_TABLE_RESERVED = "lightgray";
 
 var floorPlanLuenen =
@@ -39,12 +40,6 @@ var floorPlanNew = {
 
 var floorPlanMocks = [floorPlanDortmund, floorPlanLuenen, floorPlanNew];
 var floorPlanImgs = ["img/PlanDortmund.png", "img/PlanLuenen.jpg", "#"];
-
-function getPlanFromStorage(planId) {
-    var st = localStorage.getItem(FLOOR_PLAN_BASE_NAME + planId);
-    var plan = (st)? JSON.parse(st) : floorPlanMocks[planId];
-    return plan;
-}
 
 var roomTemplate = {
   hasRotatingPoint: false,
@@ -103,13 +98,12 @@ var tableTextTemplate = {
 }
 
 var users = [
-  {name: 'Andre', type: 'Boss', priority: '50'},  
-  {name: 'Björn', type: 'Mitarbeiter', priority: '30'},  
-  {name: 'Marvin', type: 'Mitarbeiter', priority: '20'},  
-  {name: 'Lasse', type: 'Student', priority: '10'},
-  {name: 'Robin', type: 'Student', priority: '10'},
-  {name: 'Thilo', type: 'Student', priority: '10'},
-  {name: 'Patrick', type: 'Praktikant', priority: '1'},
-  {name: 'Tim', type: 'Praktikant', priority: '1'},  
-  {name: 'Alex', type: 'Praktikant', priority: '1'},
+  { id: 1, name: 'Björn', position: 'Mitarbeiter', base_priority: '4' },
+  { id: 2, name: 'Marvin', position: 'Mitarbeiter', base_priority: '3' },
+  { id: 3, name: 'Lasse', position: 'Student', base_priority: '2' },
+  { id: 4, name: 'Robin', position: 'Student', base_priority: '2' },
+  { id: 5, name: 'Thilo', position: 'Student', base_priority: '2' },
+  { id: 6, name: 'Patrick', position: 'Praktikant', base_priority: '1' },
+  { id: 7, name: 'Tim', position: 'Praktikant', base_priority: '1' },
+  { id: 8, name: 'Alex', position: 'Praktikant', base_priority: '1' },
 ];

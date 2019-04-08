@@ -9,14 +9,19 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+    integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
   <link href="css/main.css" rel="stylesheet">
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/2.4.6/fabric.min.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/mode-switcher.js"></script>
+  <script src="js/floor-plan.js"></script>
+  <script src="js/time-table.js"></script>
   <script src="js/templates.js"></script>
   <script src="js/canvas.js"></script>
-  <script src="js/common.js"></script>
   <script src="js/dialog.js"></script>
   <script src="js/demo.js"></script>
   <script src="js/editor.js"></script>
@@ -30,8 +35,9 @@
       var canvas = new fabric.Canvas("canvas");
       initCanvas(canvas);
       var reservationDialog = new ReservationDialog();
-      var floorEditor = new FloorEditor(canvas);
-      var demo = new FloorPlanDemo(canvas, reservationDialog);
+      var floorPlan = new FloorPlan();
+      var floorEditor = new FloorEditor(canvas, floorPlan);
+      var demo = new FloorPlanDemo(canvas, reservationDialog, floorPlan);
       var modeSwitcher = new ModeSwitcher(canvas, demo, floorEditor);
     });
 
@@ -64,7 +70,8 @@
         </div>
         <div><input id="ed-room-name" type="text" placeholder="Pluto"> <button id="btn-add-room-name">Add
             Room.name</button> </div>
-        <div><button id="btn-delete">Delete Selected Object</button></div>
+        <div><button id="btn-delete">Delete Selected Object</button> &nbsp;&nbsp;<button id="btn-reset">Reset to
+            default</button></div>
         <div>
           <textarea id="data"></textarea>
         </div>
@@ -73,60 +80,33 @@
         <div></div>
       </div>
       <div class="demo controlls" style="display: none;">
-          <div id="accordion">
-              <h3>Section 1</h3>
-              <div>
-                <p>
-                Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer
-                ut neque. Vivamus nisi metus, molestie vel, gravida in, condimentum sit
-                amet, nunc. Nam a nibh. Donec suscipit eros. Nam mi. Proin viverra leo ut
-                odio. Curabitur malesuada. Vestibulum a velit eu ante scelerisque vulputate.
-                </p>
-              </div>
-              <h3>Section 2</h3>
-              <div>
-                <p>
-                Sed non urna. Donec et ante. Phasellus eu ligula. Vestibulum sit amet
-                purus. Vivamus hendrerit, dolor at aliquet laoreet, mauris turpis porttitor
-                velit, faucibus interdum tellus libero ac justo. Vivamus non quam. In
-                suscipit faucibus urna.
-                </p>
-              </div>
-              <h3>Section 3</h3>
-              <div>
-                <p>
-                Nam enim risus, molestie et, porta ac, aliquam ac, risus. Quisque lobortis.
-                Phasellus pellentesque purus in massa. Aenean in pede. Phasellus ac libero
-                ac tellus pellentesque semper. Sed ac felis. Sed commodo, magna quis
-                lacinia ornare, quam ante aliquam nisi, eu iaculis leo purus venenatis dui.
-                </p>
-                <ul>
-                  <li>List item one</li>
-                  <li>List item two</li>
-                  <li>List item three</li>
-                </ul>
-              </div>
-              <h3>Section 4</h3>
-              <div>
-                <p>
-                Cras dictum. Pellentesque habitant morbi tristique senectus et netus
-                et malesuada fames ac turpis egestas. Vestibulum ante ipsum primis in
-                faucibus orci luctus et ultrices posuere cubilia Curae; Aenean lacinia
-                mauris vel est.
-                </p>
-                <p>
-                Suspendisse eu nisl. Nullam ut libero. Integer dignissim consequat lectus.
-                Class aptent taciti sociosqu ad litora torquent per conubia nostra, per
-                inceptos himenaeos.
-                </p>
-              </div>
-            </div>        
-        <div><button>Click me</button></div>
-
-        <div></div>
+        <div id="users-container">
+          <!-- insert users here -->
+        </div>
+        <div id="user-template" style="display:none;">
+          <h3></h3>
+          <div class="user-details">
+            <span>Position:</span><b><span class="position"></span></b><br />
+            <span>Priority:</span><b><span class="base-priority"></span></b><br />
+            <hr>
+            <span>Timetable:</span> <button class="btn-timetable-new">New</button><br />
+            <div class="timetable">
+            </div>
+            <hr>
+            <span>Absence:</span> <button class="btn-absense-new">New</button><br />
+            <div class="absensetable">
+            </div>
+            <hr>
+            &nbsp;
+          </div>
+        </div>
+        <button id="btn-demo-save">Save All</button>
+        <button id="btn-demo-reset">Reset</button>
       </div>
+      <div></div>
     </div>
-    <div class="footer"></div>
+  </div>
+  <div class="footer"></div>
   </div>
   <div class="dialog-forms">
     <div id="dialog-form" title="Reservation Form">

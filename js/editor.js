@@ -1,6 +1,6 @@
-function FloorEditor(canvas) {
+function FloorEditor(canvas, floorPlan) {
     var _this = this;
-    var floorPlan = {};
+    var floorPlanDto = {};
 
     init();
     function init() {
@@ -8,6 +8,16 @@ function FloorEditor(canvas) {
         setPlan(planId);
         initToolBar();
     }
+
+    this.getPlanId = function() {
+        return getPlanId();
+    };
+
+    this.saveAll = function() {
+        var plan = getFloorPlanObj(canvas.getZoom());
+        var planId = getPlanId();
+        floorPlan.save(plan, planId);
+    };
 
     function initToolBar() {
         $("#btn-add-room").click(function () {
@@ -41,7 +51,7 @@ function FloorEditor(canvas) {
         $("#btn-export-data").click(function () {
             var plan = getFloorPlanObj(canvas.getZoom());
             var planId = getPlanId();
-            localStorage.setItem(FLOOR_PLAN_BASE_NAME + planId, JSON.stringify(plan));
+            floorPlan.save(plan, planId);
             showData(plan);
         });
 
@@ -95,6 +105,14 @@ function FloorEditor(canvas) {
                 setPlan(planId);
             }
         });
+
+        $("#btn-reset").click(function () {
+            if (confirm("Are you sure, you want to reset the plan to default?")) {
+                floorPlan.reset();
+                var plan = floorPlan.load();
+                setFloorPlan(plan);       
+            }
+        });
     }
 
     function getPlanId() {
@@ -102,7 +120,7 @@ function FloorEditor(canvas) {
     }
 
     function setPlan(planId) {
-        var plan = getPlanFromStorage(planId);
+        var plan = floorPlan.load(planId);
         setFloorPlan(plan);
         showData(plan);
         $("#bg-img").attr("src", floorPlanImgs[planId]);
@@ -127,8 +145,8 @@ function FloorEditor(canvas) {
     }
 
     function setZoom(zoom) {
-        var width = Math.round(floorPlan.width * zoom);
-        var height = Math.round(floorPlan.height * zoom);
+        var width = Math.round(floorPlanDto.width * zoom);
+        var height = Math.round(floorPlanDto.height * zoom);
         $("#bg-img").attr("width", width);
         $("#bg-img").attr("height", height);
         canvas.setWidth(width);
@@ -137,24 +155,24 @@ function FloorEditor(canvas) {
     }
 
     function setFloorPlan(aFloorPlan) {
-        floorPlan = Object.assign({}, aFloorPlan);
+        floorPlanDto = Object.assign({}, aFloorPlan);
         canvas.clear();
         setZoom(1);
         canvas.requestRenderAll();
 
-        floorPlan.rooms.forEach(function (data) {
+        floorPlanDto.rooms.forEach(function (data) {
             addRoom(data);
         });
 
-        floorPlan.tables.forEach(function (data) {
+        floorPlanDto.tables.forEach(function (data) {
             addTable(data);
         });
 
-        floorPlan.rnames.forEach(function (data) {
+        floorPlanDto.rnames.forEach(function (data) {
             addRoomName(data.text, data);
         });
 
-        floorPlan.rids.forEach(function (data) {
+        floorPlanDto.rids.forEach(function (data) {
             addRoomId(data.text, data);
         });
 
@@ -196,8 +214,8 @@ function FloorEditor(canvas) {
 
     function getFloorPlanObj(zoom = 1) {
         var newPlan = {
-            height: Math.round(floorPlan.height * zoom),
-            width: Math.round(floorPlan.width * zoom),
+            height: Math.round(floorPlanDto.height * zoom),
+            width: Math.round(floorPlanDto.width * zoom),
             rooms: [],
             tables: [],
             rnames: [],

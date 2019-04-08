@@ -2,17 +2,23 @@ function ReservationDialog() {
     var _this = this;
     var dialog = null;
     var form = null;
-    var dateFormat = "mm/dd/yy";
+    var dateFormat = DATE_FORMAT;
     var from = null;
     var to = null;
     var callbackfn = null;
     init();
 
     function addReservation() {
-        var result = serializeFormToJSON();
-        if (typeof callbackfn === "function") {
-            callbackfn(result);
+        var dateFrom = getDate(from.get(0));
+        var dateTo = getDate(to.get(0));
+        console.log(dateFrom);
+        console.log(dateTo);
+        var result = (dateFrom && dateTo) && (dateFrom <= dateTo);
+        if (result && (typeof callbackfn === "function")) {
+            var data = serializeFormToJSON();
+            callbackfn(data);
         }
+        return result;
     }
 
     function serializeFormToJSON() {
@@ -35,6 +41,7 @@ function ReservationDialog() {
 
     function getDate(element) {
         var date;
+        console.log(element.value);
         try {
             date = $.datepicker.parseDate(dateFormat, element.value);
         } catch (error) {
@@ -48,21 +55,25 @@ function ReservationDialog() {
     function init() {
         from = $("#from")
             .datepicker({
-                defaultDate: "-1d",
+                minDate: 0,
+                defaultDate: "0",
                 changeMonth: true,
-                numberOfMonths: 2
-            })
-            .on("change", function () {
-                to.datepicker("option", "minDate", getDate(this));
+                numberOfMonths: 1,
+                dateFormat: dateFormat
             });
         to = $("#to").datepicker({
-            defaultDate: "+1w",
+            defaultDate: "+2w",
             changeMonth: true,
-            numberOfMonths: 2
-        })
-            .on("change", function () {
-                from.datepicker("option", "maxDate", getDate(this));
-            });
+            numberOfMonths: 1,
+            dateFormat: dateFormat
+        });
+
+        from.on("change", function () {
+            to.datepicker("option", "minDate", getDate(this));
+        });
+        to.on("change", function () {
+            from.datepicker("option", "maxDate", getDate(this));
+        });
 
 
         dialog = $("#dialog-form").dialog({
@@ -72,13 +83,9 @@ function ReservationDialog() {
             modal: true,
             buttons: {
                 "Save": function () {
-                    addReservation();
-                    dialog.dialog("close");
-                },
-                "Delete": function () {
-                    $("#name").val("");
-                    addReservation();
-                    dialog.dialog("close");
+                    if (addReservation()) {
+                        dialog.dialog("close");
+                    }
                 },
                 Cancel: function () {
                     dialog.dialog("close");
@@ -86,13 +93,18 @@ function ReservationDialog() {
             },
             close: function () {
                 form[0].reset();
+                from.datepicker("option", "minDate", new Date());
+                from.datepicker("option", "maxDate", new Date(2050,1,1));
+                to.datepicker("option", "minDate", new Date());
+                to.datepicker("option", "maxDate", new Date(2050,1,1));
+                
                 //allFields.removeClass("ui-state-error");
             }
         });
 
         form = dialog.find("form").on("submit", function (event) {
             event.preventDefault();
-            addReservation();
+            //addReservation();
         });
 
 
