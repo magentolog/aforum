@@ -1,12 +1,12 @@
 function FloorPlanDemo(canvas, reservationDialog, floorPlan) {
     var _this = this;
     var timeTable = null;
-    var absenseTable = null;
+    var absenceTable = null;
 
     init();
     function init() {
         $("#btn-demo-save").click(function () {
-            console.log("save");
+            _this.saveAll();
         });
 
         $("#btn-demo-reset").click(function () {
@@ -16,9 +16,14 @@ function FloorPlanDemo(canvas, reservationDialog, floorPlan) {
         });
     }
 
+    this.saveAll = function () {
+        timeTable.save();
+        absenceTable.save();
+    }
+
     function deleteAll() {
         timeTable.deleteAll();
-        absenseTable.deleteAll();
+        absenceTable.deleteAll();
         showUsers();
     }
 
@@ -39,24 +44,26 @@ function FloorPlanDemo(canvas, reservationDialog, floorPlan) {
             var $userDetails = $(this).parent(".user-details");
             addReservationRequest($userDetails);
         });
-        $user.find(".btn-absense-new").click(function () {
+        $user.find(".btn-absence-new").click(function () {
             var $userDetails = $(this).parent(".user-details");
-            addAbsenseItem($userDetails);
+            addabsenceItem($userDetails);
         });
         var $timetable = $user.find('.timetable');
         addTimeTableEvents($timetable, timeTable);
 
-        var $absensetable = $user.find('.absensetable');
-        addTimeTableEvents($absensetable, absenseTable);
+        var $absencetable = $user.find('.absencetable');
+        addTimeTableEvents($absencetable, absenceTable);
     }
 
     function addTimeTableEvents($timetable, timeTable) {
-        $timetable.find('.fa-trash-alt').click(function () {
+        $timetable.find('.fa-trash-alt').off("click").click(function () {
             var $item = $(this).parent(".tt-item");
             var id = +($item.attr("data-id"));
+            console.log(id);
+            console.log(timeTable.remove(id));
             $item.remove();
         });
-        $timetable.find('.fa-edit').click(function () {
+        $timetable.find('.fa-edit').off("click").click(function () {
             var $item = $(this).parent(".tt-item");
             var id = +($item.attr("data-id"));
             alert('edit item:' + id);
@@ -79,11 +86,11 @@ function FloorPlanDemo(canvas, reservationDialog, floorPlan) {
     }
 
     function getTTItemHtml(item) {
-        var html = '<div class="tt-item" data-id = "' + item.id + '"><span>' + item.from + '</span>&nbsp;-&nbsp;<span>' + item.to + '</span>&nbsp;&nbsp;' + '<i class="far fa-edit"></i>&nbsp;&nbsp;' + '<i class="far fa-trash-alt"></i>' + '</div>';
+        var html = '<div class="tt-item" data-id = "' + item.id + '"><span>' + item.from + '</span>&nbsp;-&nbsp;<span>' + item.to + '</span>&nbsp;&nbsp;' + '<i class="far fa-edit" title="edit item"></i>&nbsp;&nbsp;' + '<i class="far fa-trash-alt" title="delete item"></i>' + '</div>';
         return html;
     }
 
-    function addAbsenseItem($user) {
+    function addabsenceItem($user) {
         var $timetable = $user.find(".timetable");
         var userId = +($user.attr('data-user-id'));
         var user = users.find(user => user.id == userId);
@@ -97,9 +104,10 @@ function FloorPlanDemo(canvas, reservationDialog, floorPlan) {
         var defaultdata = { name: user.name };
         reservationDialog.show(defaultdata, function (data) {
             data.userId = userId;
-            var ttItem = timeTable.add(userId, data.from, data.to);
-            if (ttItem) {
-                console.log(ttItem);
+            var ttItemDto = timeTable.add(userId, data.from, data.to);
+            if (ttItemDto) {
+                $timetable.append(getTTItemHtml(ttItemDto));
+                addTimeTableEvents($timetable, timeTable);
             } else {
                 alert('Invalid data!');
             }
@@ -108,7 +116,7 @@ function FloorPlanDemo(canvas, reservationDialog, floorPlan) {
 
     this.run = function (planId) {
         timeTable = new TimeTable(planId, true);
-        absenseTable = new TimeTable(planId, false);
+        absenceTable = new TimeTable(planId, false);
         showUsers();
     }
 

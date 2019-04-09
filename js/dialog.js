@@ -11,8 +11,6 @@ function ReservationDialog() {
     function addReservation() {
         var dateFrom = getDate(from.get(0));
         var dateTo = getDate(to.get(0));
-        console.log(dateFrom);
-        console.log(dateTo);
         var result = (dateFrom && dateTo) && (dateFrom <= dateTo);
         if (result && (typeof callbackfn === "function")) {
             var data = serializeFormToJSON();
@@ -41,7 +39,6 @@ function ReservationDialog() {
 
     function getDate(element) {
         var date;
-        console.log(element.value);
         try {
             date = $.datepicker.parseDate(dateFormat, element.value);
         } catch (error) {

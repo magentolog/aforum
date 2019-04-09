@@ -24,6 +24,7 @@ function ModeSwitcher(canvas, demo, editor) {
       editor.saveAll();
       demo.run(editor.getPlanId());
     } else {
+      demo.saveAll();
       canvas.unblockAll();
       canvas.clearTables();
     }

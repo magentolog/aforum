@@ -1,5 +1,5 @@
 const TIME_TABLE_BASE_NAME = "TimeTable";
-const ABSENSE_TABLE_BASE_NAME = "AbsenseTable";
+const ABSENCE_TABLE_BASE_NAME = "AbsenceTable";
 
 function TT_Item(userId, id, sFrom, sTo) {
     var _this = this;
@@ -25,7 +25,7 @@ function TimeTable(planId, isTimeTable = true) {
         _this.load();
     }
     function getTableName() {
-        var tableName = (isTimeTable) ? TIME_TABLE_BASE_NAME : ABSENSE_TABLE_BASE_NAME;
+        var tableName = (isTimeTable) ? TIME_TABLE_BASE_NAME : ABSENCE_TABLE_BASE_NAME;
         return tableName + planId;
     }
 
@@ -74,6 +74,16 @@ function TimeTable(planId, isTimeTable = true) {
             return item;
         }
         else return false;
+    };
+
+    this.remove = function (id) {
+        for (var i = 0, n = _timeTableArr.length; i < n; i++) {
+            var item = _timeTableArr[i];
+            if (item.id == id) {
+                return _timeTableArr.splice(i, 1);
+            }
+        }
+        return false;
     };
 
     init();
