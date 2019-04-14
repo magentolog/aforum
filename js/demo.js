@@ -59,14 +59,22 @@ function FloorPlanDemo(canvas, reservationDialog, floorPlan) {
         $timetable.find('.fa-trash-alt').off("click").click(function () {
             var $item = $(this).parent(".tt-item");
             var id = +($item.attr("data-id"));
-            console.log(id);
-            console.log(timeTable.remove(id));
+            timeTable.remove(id);
             $item.remove();
         });
         $timetable.find('.fa-edit').off("click").click(function () {
             var $item = $(this).parent(".tt-item");
             var id = +($item.attr("data-id"));
-            alert('edit item:' + id);
+            var item = timeTable.get(id);
+            if (item) {
+                var user = users.find(user => user.id == item.userId);
+                reservationDialog.show(item, function (data) {
+                    item.from = data.from;
+                    item.to = data.to;
+                    $item.find('.from').text(item.from);
+                    $item.find('.to').text(item.to);
+                });
+            }
         });
     }
 
@@ -86,7 +94,7 @@ function FloorPlanDemo(canvas, reservationDialog, floorPlan) {
     }
 
     function getTTItemHtml(item) {
-        var html = '<div class="tt-item" data-id = "' + item.id + '"><span>' + item.from + '</span>&nbsp;-&nbsp;<span>' + item.to + '</span>&nbsp;&nbsp;' + '<i class="far fa-edit" title="edit item"></i>&nbsp;&nbsp;' + '<i class="far fa-trash-alt" title="delete item"></i>' + '</div>';
+        var html = '<div class="tt-item" data-id = "' + item.id + '"><span class="from">' + item.from + '</span>&nbsp;-&nbsp;<span class="to">' + item.to + '</span>&nbsp;&nbsp;' + '<i class="far fa-edit" title="edit item"></i>&nbsp;&nbsp;' + '<i class="far fa-trash-alt" title="delete item"></i>' + '</div>';
         return html;
     }
 

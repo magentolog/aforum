@@ -59,6 +59,17 @@ function TimeTable(planId, isTimeTable = true) {
         return result;
     };
 
+    this.get = function(id) {
+        for (var i = 0, n = _timeTableArr.length; i < n; i++) {
+            var item = _timeTableArr[i];
+            if (item.id == id) {
+                return item;
+            }
+        }
+        return false;
+    };
+    
+
     this.add = function (userId, from, to) {
         var dateFrom = $.datepicker.parseDate(DATE_FORMAT, from);
         var dateTo = $.datepicker.parseDate(DATE_FORMAT, to);
