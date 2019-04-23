@@ -2,6 +2,7 @@ function FloorPlanDemo(canvas, reservationDialog, floorPlan) {
     var _this = this;
     var timeTable = null;
     var absenceTable = null;
+    var easterEgg = null;
 
     init();
     function init() {
@@ -13,6 +14,13 @@ function FloorPlanDemo(canvas, reservationDialog, floorPlan) {
             if (confirm("Are you sure you want to remove all data?")) {
                 deleteAll();
             }
+        });
+
+        $("#btn-animate").click(function () {
+            if (!easterEgg) {
+                easterEgg = new EasterEgg();
+            }
+            easterEgg.init(canvas);
         });
     }
 
