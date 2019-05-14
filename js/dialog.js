@@ -1,8 +1,30 @@
-function ReservationDialog() {
+function ReservationDialog() { // DateIntervalDialog gecorator
+    const SELECTOR = "#reservation-dialog";
+    const HEIGHT =  400;
+    const WIDTH = 350;
+    var _dialog = new DateIntervalDialog(SELECTOR);
+    this.show = function (data, aCallbackFn) {
+        _dialog.show(data, aCallbackFn);
+    }
+}
+
+function AbsenceDialog() {
+    const SELECTOR = "#absence-dialog";
+    const HEIGHT =  400;
+    const WIDTH = 350;
+    var _dialog = new DateIntervalDialog(SELECTOR);
+    this.show = function (data, aCallbackFn) {
+        _dialog.show(data, aCallbackFn);
+    }
+}
+
+function DateIntervalDialog(selector) {
     var _this = this;
     var dialog = null;
-    var form = null;
+    var $form = $(selector).find("form");
     var dateFormat = DATE_FORMAT;
+    var $from = $(selector).find("[name=from]");
+    var $to = $(selector).find("[name=to]");
     var from = null;
     var to = null;
     var callbackfn = null;
@@ -20,7 +42,7 @@ function ReservationDialog() {
     }
 
     function serializeFormToJSON() {
-        var fields = form.serializeArray();
+        var fields = $form.serializeArray();
         var result = {};
         jQuery.each(fields, function (i, field) {
             result[field.name] = field.value;
@@ -30,7 +52,7 @@ function ReservationDialog() {
 
     this.show = function (data, aCallbackFn) {
         for (x in data) {
-            form.find("#" + x).val(data[x]);
+            $form.find("[name=" + x + "]").val(data[x]);
         }
         callbackfn = aCallbackFn;
         dialog.dialog("open");
@@ -50,15 +72,14 @@ function ReservationDialog() {
 
 
     function init() {
-        from = $("#from")
-            .datepicker({
-                minDate: 0,
-                defaultDate: "0",
-                changeMonth: true,
-                numberOfMonths: 1,
-                dateFormat: dateFormat
-            });
-        to = $("#to").datepicker({
+        from = $from.datepicker({
+            minDate: 0,
+            defaultDate: "0",
+            changeMonth: true,
+            numberOfMonths: 1,
+            dateFormat: dateFormat
+        });
+        to = $to.datepicker({
             defaultDate: "+2w",
             changeMonth: true,
             numberOfMonths: 1,
@@ -73,10 +94,10 @@ function ReservationDialog() {
         });
 
 
-        dialog = $("#dialog-form").dialog({
+        dialog = $(selector).dialog({
             autoOpen: false,
-            height: 400,
-            width: 350,
+            //height: 400,
+            //width: 350,
             modal: true,
             buttons: {
                 "Save": function () {
@@ -89,17 +110,17 @@ function ReservationDialog() {
                 }
             },
             close: function () {
-                form[0].reset();
+                $form[0].reset();
                 from.datepicker("option", "minDate", new Date());
-                from.datepicker("option", "maxDate", new Date(2050,1,1));
+                from.datepicker("option", "maxDate", new Date(2050, 1, 1));
                 to.datepicker("option", "minDate", new Date());
-                to.datepicker("option", "maxDate", new Date(2050,1,1));
-                
+                to.datepicker("option", "maxDate", new Date(2050, 1, 1));
+
                 //allFields.removeClass("ui-state-error");
             }
         });
 
-        form = dialog.find("form").on("submit", function (event) {
+        $form.on("submit", function (event) {
             event.preventDefault();
             //addReservation();
         });

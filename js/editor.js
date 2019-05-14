@@ -8,12 +8,23 @@ function FloorEditor(canvas, floorPlan) {
         setPlan(planId);
         initToolBar();
     }
+    this.hide = function() {
+        $('.edit').hide();        
+        saveAll();
+        canvas.blockAll();
+    }
+
+    this.show = function() {
+        $('.edit').show();        
+        canvas.unblockAll();
+        canvas.clearTables();        
+    }
 
     this.getPlanId = function() {
         return getPlanId();
     };
 
-    this.saveAll = function() {
+    function saveAll() {
         var plan = getFloorPlanObj(canvas.getZoom());
         var planId = getPlanId();
         floorPlan.save(plan, planId);

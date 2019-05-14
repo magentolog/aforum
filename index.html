@@ -26,6 +26,8 @@
   <script src="js/demo.js"></script>
   <script src="js/editor.js"></script>
   <script src="js/easter-egg.js"></script>
+  <script src="js/day-navigator-component.js"></script>
+  <script src="js/day-navigator-service.js"></script>
 
   <style>
 
@@ -33,26 +35,43 @@
 
   <script>
     $(document).ready(function () {
-      var canvas = new fabric.Canvas("canvas");
+      var canvas = new fabric.Canvas('canvas');
       initCanvas(canvas);
-      var reservationDialog = new ReservationDialog();
       var floorPlan = new FloorPlan();
-      var floorEditor = new FloorEditor(canvas, floorPlan);
-      var demo = new FloorPlanDemo(canvas, reservationDialog, floorPlan);
-      var modeSwitcher = new ModeSwitcher(canvas, demo, floorEditor);
+      var editor = new FloorEditor(canvas, floorPlan);
+      var demo = new FloorPlanDemo(canvas);
+      var modeSwitcher = new ModeSwitcher(demo, editor);
     });
-
+    window.onbeforeunload = function (e) {
+      const msg = 'Are you sure you want to close the page without saving?';
+      e = e || window.event;
+      if (e) {
+        e.returnValue = msg;
+      }
+      return msg;
+    };
   </script>
 </head>
 
 <body>
   <div class="floor-plan-container">
-    <div class="canvas-container">
-      <div class="absolute">
-        <img id="bg-img" src="img/PlanDortmund.png" />
+    <div class="left">
+      <div class="day-navigator">
+        <span class="center">
+          <button class="btn-prev-interval">&lt;&lt;</button>
+          <button class="btn-prev-day">&lt;</button>
+          <input type="text" name="datepicker" size=10>
+          <button class="btn-next-day">&gt;</button>
+          <button class="btn-next-interval">&gt;&gt;</button>
+        </span>
       </div>
-      <div class="">
-        <canvas id="canvas"></canvas>
+      <div class="canvas-container">
+        <div class="absolute">
+          <img id="bg-img" src="img/PlanDortmund.png" />
+        </div>
+        <div class="">
+          <canvas id="canvas"></canvas>
+        </div>
       </div>
     </div>
     <div class="tools-container">
@@ -90,20 +109,21 @@
             <span>Position:</span><b><span class="position"></span></b><br />
             <span>Priority:</span><b><span class="base-priority"></span></b><br />
             <hr>
-            <span>Timetable:</span> <button class="btn-timetable-new" title="add new reservation request">New</button><br />
+            <span>Timetable:</span> <button class="btn-timetable-new"
+              title="add new reservation request">New</button><br />
             <div class="timetable">
             </div>
             <hr>
-            <span>Absence:</span> <button class="btn-absence-new" title="add absence info (Urlaub, Geschäftsreise, usw)">New</button><br />
+            <span>Absence:</span> <button class="btn-absence-new"
+              title="add absence info (Urlaub, Geschäftsreise, usw)">New</button><br />
             <div class="absencetable">
             </div>
-            <hr>
-            &nbsp;
           </div>
         </div>
         <button id="btn-demo-save">Save All</button>
         <button id="btn-demo-reset">Reset</button>
-        <button id="btn-animate">Billiards</button>        
+        <button id="btn-animate">Billiards</button>
+        <button id="btn-show-png">Show Picture</button>
       </div>
       <div></div>
     </div>
@@ -111,20 +131,34 @@
   <div class="footer"></div>
   </div>
   <div class="dialog-forms">
-    <div id="dialog-form" title="Reservation Form">
+    <div id="reservation-dialog" title="Reservation Form">
       <p class="validateTips"></p>
       <form>
         <fieldset>
           <label for="from">StartDate</label>
-          <input type="text" id="from" name="from">
+          <input type="text" class="from" name="from">
           <br><br>
           <label for="to">&nbsp;&nbsp;EndDate</label>
-          <input type="text" id="to" name="to">
+          <input type="text" class="to" name="to">
           <br><br>
           <label for="name">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name</label>
-          <input type="text" name="name" id="name" value="" class="text ui-widget-content ui-corner-all" autofocus>
+          <input type="text" name="name" value="" class="text ui-widget-content ui-corner-all">
 
-          <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+          <input type="submit" tabindex="-1" style="position:absolute; top:-1000px" autofocus>
+        </fieldset>
+      </form>
+    </div>
+    <div id="absence-dialog" title="Absence Form">
+      <p class="validateTips"></p>
+      <form>
+        <fieldset>
+          <label for="from">StartDate</label>
+          <input type="text" class="from" name="from">
+          <br><br>
+          <label for="to">&nbsp;&nbsp;EndDate</label>
+          <input type="text" class="to" name="to">
+          <br><br>
+          <input type="submit" tabindex="-1" style="position:absolute; top:-1000px" autofocus>
         </fieldset>
       </form>
     </div>

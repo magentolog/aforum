@@ -1,21 +1,6 @@
 const TIME_TABLE_BASE_NAME = "TimeTable";
 const ABSENCE_TABLE_BASE_NAME = "AbsenceTable";
 
-function TT_Item(userId, id, sFrom, sTo) {
-    var _this = this;
-    this.id = id;
-    this.userId = userId;
-    this.from = new Date();
-    this.to = new Date();
-    Object.defineProperty(this, "sFrom", {
-        get: function () { _this.from.toString() },
-        set: function (value) { _this.from = new Date(value) }
-    });
-    this.toString = function () {
-        return _this.sFrom;
-    }
-};
-
 function TimeTable(planId, isTimeTable = true) {
     var _this = this;
     var _timeTableArr = [];
@@ -24,6 +9,7 @@ function TimeTable(planId, isTimeTable = true) {
     function init() {
         _this.load();
     }
+
     function getTableName() {
         var tableName = (isTimeTable) ? TIME_TABLE_BASE_NAME : ABSENCE_TABLE_BASE_NAME;
         return tableName + planId;
@@ -59,7 +45,7 @@ function TimeTable(planId, isTimeTable = true) {
         return result;
     };
 
-    this.get = function(id) {
+    this.get = function (id) {
         for (var i = 0, n = _timeTableArr.length; i < n; i++) {
             var item = _timeTableArr[i];
             if (item.id == id) {
@@ -68,7 +54,7 @@ function TimeTable(planId, isTimeTable = true) {
         }
         return false;
     };
-    
+
 
     this.add = function (userId, from, to) {
         var dateFrom = $.datepicker.parseDate(DATE_FORMAT, from);
@@ -95,6 +81,16 @@ function TimeTable(planId, isTimeTable = true) {
             }
         }
         return false;
+    };
+
+    this.getDayArray = function () {
+        var arr = [];
+        _timeTableArr.forEach((item) => {
+            var dateFrom = $.datepicker.parseDate(DATE_FORMAT, item.from);
+            var dateTo = $.datepicker.parseDate(DATE_FORMAT, item.to);
+            arr.push(dateFrom.getTime(), dateTo.getTime() + 1000 * 24 * 60 * 60);
+        });
+        return arr;
     };
 
     init();

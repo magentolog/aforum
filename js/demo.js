@@ -1,13 +1,33 @@
-function FloorPlanDemo(canvas, reservationDialog, floorPlan) {
+function FloorPlanDemo(canvas) {
     var _this = this;
     var timeTable = null;
     var absenceTable = null;
-    var easterEgg = null;
+    var billiardTable = null;
+    var dayNavigatorService = null;
+    var dayNavigatorComponent = new DayNavigatorComponent;
+    var reservationDialog = new ReservationDialog();
+    var absenceDialog = new AbsenceDialog();
 
     init();
+
+    this.show = function (planId) {
+        $('.demo').show();
+        timeTable = new TimeTable(planId, true);
+        absenceTable = new TimeTable(planId, false);
+        dayNavigatorService = new DayNavigatorService(timeTable, absenceTable);
+        dayNavigatorComponent.show(dayNavigatorService);
+        showUsers();
+    }
+
+    this.hide = function () {
+        saveAll();
+        dayNavigatorComponent.hide();
+        $('.demo').hide();
+    }
+
     function init() {
         $("#btn-demo-save").click(function () {
-            _this.saveAll();
+            saveAll();
         });
 
         $("#btn-demo-reset").click(function () {
@@ -17,14 +37,27 @@ function FloorPlanDemo(canvas, reservationDialog, floorPlan) {
         });
 
         $("#btn-animate").click(function () {
-            if (!easterEgg) {
-                easterEgg = new EasterEgg();
+            if (!billiardTable) {
+                billiardTable = new BilliardTable(canvas);
             }
-            easterEgg.init(canvas);
+            billiardTable.init();
+        });
+
+        $("#btn-show-png").click(function () {
+            const bgColorOld = canvas.get('backgroundColor');
+            canvas.set('backgroundColor', 'white');
+            url = canvas.toDataURL({
+                format: 'png',
+                multiplier: 2,
+            });
+            console.log(url);
+            var arr = timeTable.getDayArray();
+            console.log(arr);
+
         });
     }
 
-    this.saveAll = function () {
+    function saveAll() {
         timeTable.save();
         absenceTable.save();
     }
@@ -39,9 +72,9 @@ function FloorPlanDemo(canvas, reservationDialog, floorPlan) {
         $("#users-container").html('<div id="accordion"></div>');
         var $accordion = $("#accordion");
         users.forEach((user) => {
-            var $user = $accordion.append(getUserHtml(user));
-            addUserRelatedEvents($user);
+            $accordion.append(getUserHtml(user));
         });
+        addUserRelatedEvents($accordion);
         $accordion.accordion({
             heightStyle: "content",
         });
@@ -50,33 +83,32 @@ function FloorPlanDemo(canvas, reservationDialog, floorPlan) {
     function addUserRelatedEvents($user) {
         $user.find(".btn-timetable-new").click(function () {
             var $userDetails = $(this).parent(".user-details");
-            addReservationRequest($userDetails);
+            addTimeTableItem($(this), timeTable);
         });
         $user.find(".btn-absence-new").click(function () {
-            var $userDetails = $(this).parent(".user-details");
-            addabsenceItem($userDetails);
+            addTimeTableItem($(this), absenceTable);
         });
         var $timetable = $user.find('.timetable');
-        addTimeTableEvents($timetable, timeTable);
+        addTimeTableEvents($timetable, timeTable, reservationDialog);
 
         var $absencetable = $user.find('.absencetable');
-        addTimeTableEvents($absencetable, absenceTable);
+        addTimeTableEvents($absencetable, absenceTable, absenceDialog);
     }
 
-    function addTimeTableEvents($timetable, timeTable) {
+    function addTimeTableEvents($timetable, aTimeTable, aDialog) {
         $timetable.find('.fa-trash-alt').off("click").click(function () {
             var $item = $(this).parent(".tt-item");
             var id = +($item.attr("data-id"));
-            timeTable.remove(id);
+            aTimeTable.remove(id);
             $item.remove();
         });
         $timetable.find('.fa-edit').off("click").click(function () {
             var $item = $(this).parent(".tt-item");
             var id = +($item.attr("data-id"));
-            var item = timeTable.get(id);
+            var item = aTimeTable.get(id);
             if (item) {
                 var user = users.find(user => user.id == item.userId);
-                reservationDialog.show(item, function (data) {
+                aDialog.show(item, function (data) {
                     item.from = data.from;
                     item.to = data.to;
                     $item.find('.from').text(item.from);
@@ -87,18 +119,21 @@ function FloorPlanDemo(canvas, reservationDialog, floorPlan) {
     }
 
     function getUserHtml(user) {
-        var requests = timeTable.getByUserId(user.id);
         var $tpl = $('#user-template');
         $tpl.find('.user-details').attr('data-user-id', user.id);
         $tpl.find('h3').html(user.name);
         $tpl.find('.position').html(user.position);
         $tpl.find('.base-priority').html(user.base_priority);
-        var $timetable = $tpl.find('.timetable');
+        filloutTimeTable($tpl.find('.timetable'), timeTable.getByUserId(user.id));
+        filloutTimeTable($tpl.find('.absencetable'), absenceTable.getByUserId(user.id));
+        return $tpl.html();
+    }
+
+    function filloutTimeTable($timetable, ttItemDtoList) {
         $timetable.html("");
-        requests.forEach(function (ttItemDto) {
+        ttItemDtoList.forEach(function (ttItemDto) {
             $timetable.append(getTTItemHtml(ttItemDto));
         });
-        return $tpl.html();
     }
 
     function getTTItemHtml(item) {
@@ -106,34 +141,28 @@ function FloorPlanDemo(canvas, reservationDialog, floorPlan) {
         return html;
     }
 
-    function addabsenceItem($user) {
-        var $timetable = $user.find(".timetable");
+    function addTimeTableItem($button, aTimeTable) {
+        var $user = $button.parent(".user-details");
         var userId = +($user.attr('data-user-id'));
-        var user = users.find(user => user.id == userId);
-        console.log(user);
-    }
-
-    function addReservationRequest($user) {
-        var $timetable = $user.find(".timetable");
-        var userId = +($user.attr('data-user-id'));
+        if (aTimeTable === timeTable) {
+            var $timetable = $user.find(".timetable");
+            var aDialog = reservationDialog;
+        } else {
+            var $timetable = $user.find(".absencetable");
+            var aDialog = absenceDialog;
+        }
         var user = users.find(user => user.id == userId);
         var defaultdata = { name: user.name };
-        reservationDialog.show(defaultdata, function (data) {
+        aDialog.show(defaultdata, function (data) {
             data.userId = userId;
-            var ttItemDto = timeTable.add(userId, data.from, data.to);
+            var ttItemDto = aTimeTable.add(userId, data.from, data.to);
             if (ttItemDto) {
                 $timetable.append(getTTItemHtml(ttItemDto));
-                addTimeTableEvents($timetable, timeTable);
+                addTimeTableEvents($timetable, aTimeTable, aDialog);
             } else {
                 alert('Invalid data!');
             }
         });
-    }
-
-    this.run = function (planId) {
-        timeTable = new TimeTable(planId, true);
-        absenceTable = new TimeTable(planId, false);
-        showUsers();
     }
 
     function rnd(max) {
@@ -145,7 +174,7 @@ function FloorPlanDemo(canvas, reservationDialog, floorPlan) {
         return users[rnd(n)];
     }
 
-    function showNextDay() {
+    function showRandomUsers() {
         canvas.forEachObject(CLASS_TABLE, function (table) {
             var user = getRandomUser();
             if (rnd(10) < 2) {

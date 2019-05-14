@@ -12,8 +12,11 @@
   }
 
   .canvas-container {
-    float: left;
     position: relative;
+  }
+
+  .left {
+    float: left;
   }
 
   .absolute {
@@ -46,7 +49,9 @@
     height: 200px;
   }
 
-  #btn-mode {
-      
-}
+  .day-navigator {
+    text-align: center;
+    padding-bottom: 10px;
+    display: none;
+  }
 
