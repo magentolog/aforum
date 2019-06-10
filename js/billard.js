@@ -121,7 +121,7 @@ function MovingObject(obj, width, height) {
     };
 }
 
-function BilliardTable(canvas, frameSize = 100) {
+function BillardTable(canvas, frameSize = 100) {
     const _this = this;
     const timeInterval = 50; // 100ms
     const BALL_RADIUS = 15;

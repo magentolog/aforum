@@ -41,17 +41,26 @@ var roomTemplate = {
   height: 100
 };
 
+var tableGroupTemplate = {
+  width: 100,
+  height: 25
+};
+
 var tableTemplate = {
   hasRotatingPoint: false,
-  //left: 100,
-  //top: 100,
   angle: 0,
   stroke: "black",
   strokeWidth: 1,
-  fill: "rgb(193, 154, 107)",
-  width: 120,
-  height: 30
+  fill: TABLE_COLOR,
+  originX: 'center',
+  originY: 'center'
 };
+
+var tableTextTemplate = {
+  fontSize: 16,
+  originX: 'center',
+  originY: 'center',
+}
 
 var roomNameTemplate = {
   left: 100,
@@ -80,19 +89,3 @@ var roomIdTemplate = {
   textAlign: 'center'
 };
 
-var tableTextTemplate = {
-  fontSize: 16,
-  originX: 'center',
-  originY: 'center'
-}
-
-var users = [
-  { id: 1, name: 'Björn', position: 'Mitarbeiter', base_priority: '4' },
-  { id: 2, name: 'Marvin', position: 'Mitarbeiter', base_priority: '3' },
-  { id: 3, name: 'Lasse', position: 'Student', base_priority: '2' },
-  { id: 4, name: 'Robin', position: 'Student', base_priority: '2' },
-  { id: 5, name: 'Thilo', position: 'Student', base_priority: '2' },
-  { id: 6, name: 'Patrick', position: 'Praktikant', base_priority: '1' },
-  { id: 7, name: 'Tim', position: 'Praktikant', base_priority: '1' },
-  { id: 8, name: 'Alex', position: 'Praktikant', base_priority: '1' },
-];

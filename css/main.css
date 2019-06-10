@@ -1,3 +1,19 @@
+body {
+  margin-top:0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.info-msg {
+  margin-top: 0;
+  padding: 10px;
+  background-color: lightgrey;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: small;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .floor-plan-container {
     padding: 5px;
   }
@@ -7,12 +23,41 @@
   }
 
   #canvas {
-    border: 1px solid black;
+    /* border: 1px solid gray; */
     opacity: 0.9;
   }
 
   .canvas-container {
     position: relative;
+    box-shadow: 1px 1px 3px 1px gray;
+  }
+
+  .warning {
+    background-color:#ffffA0;
+    display:none;
+    border-color: #ff8080;
+    border-style: solid;
+    box-shadow: 2px 2px 2px 1px grey;
+    border-radius: 5px; 
+
+  }
+  .warning strong {
+    color: red;
+  }
+
+  .warning ul {
+    margin-top: 3px;
+    margin-bottom: 10px;
+  }
+  .canvas-footer {
+    background-color: lightgray;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .canvas-footer p {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding: 5px;
   }
 
   .left {
@@ -55,3 +100,15 @@
     display: none;
   }
 
+  #users-container {
+    margin-left: 0;
+    border: solid 1px grey;
+    background-color: silver;
+    box-shadow: 1px 1px 5px 1px gray;
+    width: 400px;
+    border-radius: 5px;
+  }
+
+  .reservation-dialog {
+    box-shadow: 1px 1px 20px 4px rgba(100, 100, 100, 0.5);
+  }

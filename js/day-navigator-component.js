@@ -1,24 +1,25 @@
-function DayNavigatorComponent() {
+function DayNavigatorComponent(mediator) {
     const SELECTOR = '.day-navigator';
     const $datePicker = $(SELECTOR).find('[name=datepicker]');
     var service = null;
 
-    $datePicker.datepicker({ dateFormat: DATE_FORMAT }); 
-
     this.hide = function () {
         service = null;
         $(SELECTOR).hide();
-    }
+    };
 
     this.show = function (aService) {
         service = aService;
         $(SELECTOR).show();
-    }
+    };
 
-    init();
+    this.getDate = function () {
+        return getDate();
+    };
 
     function init() {
-        setDate(new Date());
+        $datePicker.datepicker({ dateFormat: DATE_FORMAT });
+
         $(SELECTOR).find('.btn-prev-interval').click(function () {
             var d = getDate();
             var prevDate = (service) ? service.getPrevDate(d) : d;
@@ -39,6 +40,7 @@ function DayNavigatorComponent() {
             var nextDate = (service) ? service.getNextDate(d) : d;
             setDate(nextDate);
         });
+        $datePicker.datepicker("setDate", new Date());
     }
 
     function getDate() {
@@ -46,7 +48,12 @@ function DayNavigatorComponent() {
     }
 
     function setDate(date) {
-        $datePicker.datepicker("setDate", date);
+        let oldDate = getDate()
+        if (date.getTime() != oldDate.getTime()) {
+            $datePicker.datepicker("setDate", date);
+            mediator.notify({ type: MSG_CHANGE_CURRENT_DATE });
+        }
     }
 
-};
+    init();
+}

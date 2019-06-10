@@ -24,6 +24,23 @@ function DayNavigatorService(timeTable, absTable) {
         return new Date(nextDate);
     }
 
+    this.getDayArray = function () {
+        return getDayArray();
+    }
+
+    this.getUserRequests = function (timestamp) {
+        const presenceArr = timeTable.getByDate(timestamp);
+        const absArr = absTable.getByDate(timestamp);
+        const dict = createManyValueDictionary(presenceArr, 'userId');
+        absArr.forEach(item => {
+            var userId = item.userId;
+            if(dict.hasOwnProperty(userId)) {
+                delete dict[userId];
+            }
+        });
+        return dict;
+    }
+
     function getDayArray() {
         var arr1 = timeTable.getDayArray();
         var arr2 = absTable.getDayArray();

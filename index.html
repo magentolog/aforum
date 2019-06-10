@@ -16,44 +16,55 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/2.4.6/fabric.min.js"></script>
-  <script src="js/common.js"></script>
-  <script src="js/mode-switcher.js"></script>
-  <script src="js/floor-plan.js"></script>
-  <script src="js/time-table.js"></script>
-  <script src="js/templates.js"></script>
+
+  <script src="js/assessment-matrix.js"></script>
+  <script src="js/billard.js"></script>
+  <script src="js/BitSet.js"></script>
+
   <script src="js/canvas.js"></script>
-  <script src="js/dialog.js"></script>
-  <script src="js/demo.js"></script>
-  <script src="js/editor.js"></script>
-  <script src="js/easter-egg.js"></script>
+  <script src="js/consts.js"></script>
+
   <script src="js/day-navigator-component.js"></script>
   <script src="js/day-navigator-service.js"></script>
 
-  <style>
+  <script src="js/demo.js"></script>
+  <script src="js/dictionary.js"></script>
 
-  </style>
+  <script src="js/dialog.js"></script>
 
-  <script>
-    $(document).ready(function () {
-      var canvas = new fabric.Canvas('canvas');
-      initCanvas(canvas);
-      var floorPlan = new FloorPlan();
-      var editor = new FloorEditor(canvas, floorPlan);
-      var demo = new FloorPlanDemo(canvas);
-      var modeSwitcher = new ModeSwitcher(demo, editor);
-    });
-    window.onbeforeunload = function (e) {
-      const msg = 'Are you sure you want to close the page without saving?';
-      e = e || window.event;
-      if (e) {
-        e.returnValue = msg;
-      }
-      return msg;
-    };
-  </script>
+  <script src="js/editor.js"></script>
+
+  <script src="js/floor-plan-component.js"></script>
+  <script src="js/floor-plan-service.js"></script>
+  <script src="js/floor-plan-storage.js"></script>
+
+  <script src="js/hungarian-adapter.js"></script>
+  <script src="js/hungarianOn3.js"></script>
+
+  <script src="js/main.js"></script>
+  <script src="js/munkres.js"></script>
+  <script src="js/mode-switcher.js"></script>
+
+  <script src="js/smart-matrix.js"></script>
+  <script src="js/schedule-service.js"></script>
+  <script src="js/schedule-storage.js"></script>
+  <script src="js/seat-distribution-logic.js"></script>
+
+  <script src="js/table-service.js"></script>
+  <script src="js/templates.js"></script>
+  <script src="js/time-table.js"></script>
+
+  <script src="js/user-list-component.js"></script>
+  <script src="js/user-service.js"></script>
+  <script src="js/user-storage.js"></script>
+
 </head>
 
 <body>
+  <p class="info-msg"> This app is used for testing purposes only.
+    It doesn't contain any real plans, schedules or user's names.
+    All coincidences with reality should be considered as "random"
+  </p>
   <div class="floor-plan-container">
     <div class="left">
       <div class="day-navigator">
@@ -71,6 +82,19 @@
         </div>
         <div class="">
           <canvas id="canvas"></canvas>
+        </div>
+      </div>
+      <div class="canvas-footer">
+        <div class="warning">
+          <p><strong>Warning!</strong> Following users don't have any workplace today:</p>
+          <ul class="user-list">
+            <li>User name</li>
+          </ul>
+        </div>
+        <div class="info-msg" style="display:none;">
+          <p><strong>(i)</strong> This app is used for testing purposes only.</p>
+          <p> It doesn't contain any real plans, schedules or user's names. </p>
+          <p>All coincidences with real people should be considered as random </p>
         </div>
       </div>
     </div>
@@ -95,7 +119,8 @@
         <div>
           <textarea id="data"></textarea>
         </div>
-        <div><button id="btn-export-data">Export to JSON</button> <button id="btn-import-data">Import from JSON</button>
+        <div><button id="btn-export-data">Save & Export to JSON</button> <button id="btn-import-data">Import from
+            JSON</button>
         </div>
         <div></div>
       </div>
@@ -109,21 +134,31 @@
             <span>Position:</span><b><span class="position"></span></b><br />
             <span>Priority:</span><b><span class="base-priority"></span></b><br />
             <hr>
-            <span>Timetable:</span> <button class="btn-timetable-new"
-              title="add new reservation request">New</button><br />
-            <div class="timetable">
+            <div class="time-table">
             </div>
             <hr>
-            <span>Absence:</span> <button class="btn-absence-new"
-              title="add absence info (Urlaub, Geschäftsreise, usw)">New</button><br />
-            <div class="absencetable">
+            <div class="absence-table">
             </div>
           </div>
         </div>
-        <button id="btn-demo-save">Save All</button>
+
+        <div id="time-table-template" style="display: none;">
+          <span>Timetable:</span> <button class="btn-timetable-new"
+            title="add new reservation request">New</button><br />
+          <div class="timetable">
+            <div></div>
+          </div>
+        </div>
+
+        <div id="absence-table-template" style="display: none;">
+          <span>Absence:</span> <button class="btn-absence-new"
+            title="add absence info (Urlaub, Geschäftsreise, usw)">New</button><br />
+          <div class="absencetable">
+            <div></div>
+          </div>
+        </div>
         <button id="btn-demo-reset">Reset</button>
-        <button id="btn-animate">Billiards</button>
-        <button id="btn-show-png">Show Picture</button>
+        <!--button id="btn-animate">Billard</button-->
       </div>
       <div></div>
     </div>
@@ -135,15 +170,31 @@
       <p class="validateTips"></p>
       <form>
         <fieldset>
-          <label for="from">StartDate</label>
-          <input type="text" class="from" name="from">
+          <label for="user">User: </label>
+          <select name="userId">
+          </select>
           <br><br>
-          <label for="to">&nbsp;&nbsp;EndDate</label>
-          <input type="text" class="to" name="to">
+          <label for="from">StartDate</label><br>
+          <input type="text" class="from" name="from"><span style="color:red;">*</span>
           <br><br>
-          <label for="name">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name</label>
-          <input type="text" name="name" value="" class="text ui-widget-content ui-corner-all">
-
+          <label for="to">EndDate</label><br>
+          <input type="text" class="to" name="to"><span style="color:red;">*</span>
+          <br><br>
+          <input type="checkbox" name="days[]" value="1" id="rfMo" checked="checked"><label for="rfMo">Mo</label>
+          <input type="checkbox" name="days[]" value="2" id="rfDi" checked="checked"><label for="rfDi">Di</label>
+          <input type="checkbox" name="days[]" value="4" id="rfMi" checked="checked"><label for="rfMi">Mi</label>
+          <input type="checkbox" name="days[]" value="8" id="rfDo" checked="checked"><label for="rfDo">Do</label>
+          <input type="checkbox" name="days[]" value="16" id="rfFr" checked="checked"><label for="rfFr">Fr</label>
+          <br><br>
+          <Label>Preferrable Room</Label><br>
+          <select name="roomId">
+            <option value="">-- egal --</option>
+          </select>
+          <br><br>
+          <label>Preferable Table</label><br>
+          <select name="tableId">
+            <option value="">-- egal --</option>
+          </select>
           <input type="submit" tabindex="-1" style="position:absolute; top:-1000px" autofocus>
         </fieldset>
       </form>
@@ -152,11 +203,13 @@
       <p class="validateTips"></p>
       <form>
         <fieldset>
-          <label for="from">StartDate</label>
-          <input type="text" class="from" name="from">
+          <label>User: </label><strong><span class="user-name"></span></strong></br></br>
+          <input type="hidden" name="userId">
+          <label>StartDate</label>
+          <input type="text" class="from" name="from"><span style="color:red;">*</span>
           <br><br>
-          <label for="to">&nbsp;&nbsp;EndDate</label>
-          <input type="text" class="to" name="to">
+          <label>EndDate</label>
+          <input type="text" class="to" name="to"><span style="color:red;">*</span>
           <br><br>
           <input type="submit" tabindex="-1" style="position:absolute; top:-1000px" autofocus>
         </fieldset>
